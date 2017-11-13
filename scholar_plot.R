@@ -138,5 +138,6 @@ g1 = gtable_add_grob(g1, labs, t=3, l=3, r=5)
 # Turn off clipping in the plot panel
 g1$layout[which(g1$layout$name == "panel"), ]$clip = "off"
 
-# Print to PDF
+# Print
 ggsave(paste0(scholarid,'.scholar_plot.pdf'), g1, width=5, height=5, dpi=600)
+#ggsave(paste0(scholarid,'.scholar_plot.png'), g1, width=5, height=5, dpi=600)

@@ -2,5 +2,8 @@
 
 Google Scholar publications and citations plotted via scholar_plot.R
 
-George Church example:
-\includegraphics[width=8in]{church_example.pdf}
+## Low numbers example (from my google scholar):
+![chevrette](./examples/chevrette_example.png)
+
+## George Church example:
+![church](./examples/church_example.png)
