@@ -7,18 +7,24 @@ library(grid)
 
 ## Import Google scholar info
 scholarid <- 'VX3Laf8AAAAJ' # Low count example...me
+#scholarid <- 'LrlwhwUAAAAJ' # High count example...Jonathan Eisen
 #scholarid <- 'SfDzdgEAAAAJ' # Crazy count example...George Church
 
 ## Define how many years to include in plot
 years_to_include <- 5
 
 # Fetch scholar data, summarize, and combine
-cits <- get_citation_history(scholarid) %>% filter(!is.na(year)) %>% arrange(year) %>% mutate(cumcits=cumsum(cites)) %>% tail(years_to_include)
+cits <- get_citation_history(scholarid) %>% filter(!is.na(year)) %>% arrange(year)
+t <- data.frame(year=seq(min(cits$year), max(cits$year), 1))
+cits <- left_join(t, cits, by='year')
 cits$year <- as.factor(cits$year)
-pubs <- get_publications(scholarid) %>% filter(!is.na(year)) %>% group_by(year) %>% arrange(year) %>% summarize(pubs=n()) %>% mutate(cumpubs=cumsum(pubs)) %>% tail(years_to_include)
+pubs <- get_publications(scholarid) %>% filter(!is.na(year)) %>% group_by(year) %>% arrange(year) %>% summarize(pubs=n())
+t <- data.frame(year=seq(min(pubs$year), max(pubs$year), 1))
+pubs <- left_join(t, pubs, by='year')
 pubs$year <- as.factor(pubs$year)
 combo <- full_join(cits, pubs, by='year') %>% arrange(year)
 combo[is.na(combo)] <- 0
+combo <- combo %>% mutate(cumpubs=cumsum(pubs), cumcits=cumsum(cites)) %>% tail(years_to_include)
 
 ## Set plot params
 pubcolor <- '#8EC3A7'
@@ -139,5 +145,5 @@ g1 = gtable_add_grob(g1, labs, t=3, l=3, r=5)
 g1$layout[which(g1$layout$name == "panel"), ]$clip = "off"
 
 # Print
-ggsave(paste0(scholarid,'.scholar_plot.pdf'), g1, width=5, height=5, dpi=600)
-#ggsave(paste0(scholarid,'.scholar_plot.png'), g1, width=5, height=5, dpi=600)
+#ggsave(paste0(scholarid,'.scholar_plot.pdf'), g1, width=5, height=5, dpi=600)
+ggsave(paste0(scholarid,'.scholar_plot.png'), g1, width=5, height=5, dpi=600)
