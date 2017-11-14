@@ -14,11 +14,11 @@ scholarid <- 'VX3Laf8AAAAJ' # Low count example...me
 years_to_include <- 5
 
 # Fetch scholar data, summarize, and combine
-cits <- get_citation_history(scholarid) %>% filter(!is.na(year)) %>% arrange(year)
+cits <- get_citation_history(scholarid) %>% filter(!is.na(year))
 t <- data.frame(year=seq(min(cits$year), max(cits$year), 1))
 cits <- left_join(t, cits, by='year')
 cits$year <- as.factor(cits$year)
-pubs <- get_publications(scholarid) %>% filter(!is.na(year)) %>% group_by(year) %>% arrange(year) %>% summarize(pubs=n())
+pubs <- get_publications(scholarid) %>% filter(!is.na(year)) %>% group_by(year) %>% summarize(pubs=n())
 t <- data.frame(year=seq(min(pubs$year), max(pubs$year), 1))
 pubs <- left_join(t, pubs, by='year')
 pubs$year <- as.factor(pubs$year)
