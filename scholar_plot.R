@@ -4,7 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(gtable)
 library(grid)
-
+setwd("~/DEV/scholar_plot/")
 ## Import Google scholar info
 scholarid <- 'VX3Laf8AAAAJ' # Low count example...me
 #scholarid <- 'LrlwhwUAAAAJ' # High count example...Jonathan Eisen
@@ -131,8 +131,10 @@ g1 <- gtable_add_cols(g1, g2$widths[g2$layout[index, ]$l], pp$r)
 g1 <- gtable_add_grob(g1, yaxis, pp$t, pp$r + 1, pp$b, pp$r + 1, clip = "off", name = "axis-r")
 
 # Labels grob
-left = textGrob("Cumulative No. Publications", x = 0, y = 0.9, just = c("left", "top"), gp = gpar(col =  pubcolor))
-right =  textGrob("Cumulative No. Citations", x = 1, y = 0.9, just = c("right", "top"), gp = gpar(col =  citcolor))
+cp <- paste0("Cumulative No. Publications: ", max(combo$cumpubs))
+left = textGrob(cp, x = 0, y = 0.9, just = c("left", "top"), gp = gpar(col =  pubcolor))
+cc <- paste0("Cumulative No. Citations: ", max(combo$cumcits))
+right =  textGrob(cc, x = 1, y = 0.9, just = c("right", "top"), gp = gpar(col =  citcolor))
 labs = gTree("Labs", children = gList(left, right))
 
 # New row in the gtable for labels
