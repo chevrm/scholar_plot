@@ -9,6 +9,9 @@ library(xml2)
 library(rvest)
 library(R.cache)
 
+setwd("~/DEV/scholar_plot/")
+
+
 ## Set scholar functions - based on library(scholar)
 tidy_id <- function(id) {
   id <- scholarid
@@ -215,6 +218,9 @@ scholarid <- 'VX3Laf8AAAAJ' # example...me
 
 ## Define how many years to include in plot
 years_to_include <- 5
+current_year <- as.numeric(paste0("20", strftime(Sys.time(), format = "%y")))
+doy <- as.numeric(strftime(Sys.time(), format = "%j"))
+
 
 # Fetch scholar data, summarize, and combine
 cits <- get_citation_history(scholarid) %>% filter(!is.na(year))
@@ -223,12 +229,20 @@ t <- data.frame(year=seq(min(cits$year, pubs$year), max(cits$year, pubs$year), 1
 cits <- left_join(t, cits, by='year')
 cits$year <- as.factor(cits$year)
 
+
 t <- data.frame(year=seq(min(pubs$year), max(pubs$year), 1))
 pubs <- left_join(t, pubs, by='year')
 pubs$year <- as.factor(pubs$year)
 combo <- full_join(cits, pubs, by='year') %>% arrange(year)
 combo[is.na(combo)] <- 0
 combo <- combo %>% mutate(cumpubs=cumsum(pubs), cumcits=cumsum(cites)) %>% tail(years_to_include)
+
+## Projected
+combo$proj_c <- combo$cites
+combo[combo$year==current_year,]$proj_c <- (cits[cits$year==current_year,]$cites /doy)*365
+combo$proj_cumcits <- combo$cumcits
+combo[combo$year==current_year,]$proj_cumcits <- combo[combo$year==current_year,]$cumcits+combo[combo$year==current_year,]$proj_c
+
 
 ## Set plot params
 pubcolor <- '#8EC3A7'
@@ -262,9 +276,11 @@ pubplot <- ggplot(combo, aes(x=year, y=cumpubs)) +
   )
 #pubplot # Uncomment to check
 # Calculate yaxis upperbound by rounding the max+5% to the appropriate order of magnitude
-cymax <- roundUp(max(combo$cumcits)*1.05, 10**floor(log10(max(combo$cumcits)*1.05)))
+cymax <- roundUp(max(combo$proj_cumcits)*1.05, 10**floor(log10(max(combo$proj_cumcits)*1.05)))
 # Citation plot
 citplot <- ggplot(combo, aes(x=year, y=cumcits)) +
+  geom_line(aes(y=proj_cumcits), group=1,color='grey50', size=1.5) +
+  geom_point(aes(y=proj_cumcits), pch=21,color='white',fill='grey50', size=5) +
   geom_line(group=1, color=citcolor, size=1.5) +
   geom_point(pch=21,color='white',fill=citcolor, size=5) +
   labs(x=NULL, y= NULL) +
