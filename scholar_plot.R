@@ -221,6 +221,12 @@ years_to_include <- 5
 current_year <- as.numeric(paste0("20", strftime(Sys.time(), format = "%y")))
 doy <- as.numeric(strftime(Sys.time(), format = "%j"))
 
+#
+lastname <- sub(".+\\s(.+)$", "\\1", get_profile(scholarid)$name)
+allpubs <- get_publications(scholarid) %>% filter(!is.na(year))
+allpubs$first <- sub("^\\w+\\s(\\S+),.+", "\\1", allpubs$author)
+allpubs$isfirst <- 'N'
+allpubs[allpubs$first==lastname,'isfirst'] <- 'Y'
 
 # Fetch scholar data, summarize, and combine
 cits <- get_citation_history(scholarid) %>% filter(!is.na(year))
@@ -277,9 +283,12 @@ pubplot <- ggplot(combo, aes(x=year, y=cumpubs)) +
 #pubplot # Uncomment to check
 # Calculate yaxis upperbound by rounding the max+5% to the appropriate order of magnitude
 cymax <- roundUp(max(combo$proj_cumcits)*1.05, 10**floor(log10(max(combo$proj_cumcits)*1.05)))
+maxyear <- as.character(max(as.numeric(as.character(combo$year))))
+maxyearcit <- combo[combo['year']==maxyear,]$cumcits
+projmaxyear <- combo[combo['year']==maxyear,]$proj_cumcits
 # Citation plot
 citplot <- ggplot(combo, aes(x=year, y=cumcits)) +
-  geom_line(aes(y=proj_cumcits), group=1,color='grey50', size=1.5) +
+  geom_segment(aes(x=maxyear, xend=maxyear, y=maxyearcit, yend=projmaxyear), linetype='dotted', color='grey50', size=1.5) +
   geom_point(aes(y=proj_cumcits), pch=21,color='white',fill='grey50', size=5) +
   geom_line(group=1, color=citcolor, size=1.5) +
   geom_point(pch=21,color='white',fill=citcolor, size=5) +
