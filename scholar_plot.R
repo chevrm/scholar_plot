@@ -246,9 +246,7 @@ combo <- combo %>% mutate(cumpubs=cumsum(pubs), cumcits=cumsum(cites)) %>% tail(
 ## Projected
 combo$proj_c <- combo$cites
 combo[combo$year==current_year,]$proj_c <- (cits[cits$year==current_year,]$cites /doy)*365
-combo$proj_cumcits <- combo$cumcits
-combo[combo$year==current_year,]$proj_cumcits <- combo[combo$year==current_year,]$cumcits+combo[combo$year==current_year,]$proj_c
-
+combo <- combo %>% mutate(proj_cumcits=cumsum(proj_c))
 
 ## Set plot params
 pubcolor <- '#8EC3A7'
@@ -288,7 +286,7 @@ maxyearcit <- combo[combo['year']==maxyear,]$cumcits
 projmaxyear <- combo[combo['year']==maxyear,]$proj_cumcits
 # Citation plot
 citplot <- ggplot(combo, aes(x=year, y=cumcits)) +
-  geom_segment(aes(x=maxyear, xend=maxyear, y=maxyearcit, yend=projmaxyear), linetype='dotted', color='grey50', size=1.5) +
+  geom_segment(aes(x=maxyear, xend=maxyear, y=maxyearcit, yend=projmaxyear), color='grey50', size=1.5) +
   geom_point(aes(y=proj_cumcits), pch=21,color='white',fill='grey50', size=5) +
   geom_line(group=1, color=citcolor, size=1.5) +
   geom_point(pch=21,color='white',fill=citcolor, size=5) +
