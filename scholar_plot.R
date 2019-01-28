@@ -9,7 +9,7 @@ library(xml2)
 library(rvest)
 library(R.cache)
 
-setwd("~/DEV/scholar_plot/")
+setwd("~/git/scholar_plot/")
 
 
 ## Set scholar functions - based on library(scholar)
@@ -286,10 +286,10 @@ maxyearcit <- combo[combo['year']==maxyear,]$cumcits
 projmaxyear <- combo[combo['year']==maxyear,]$proj_cumcits
 # Citation plot
 citplot <- ggplot(combo, aes(x=year, y=cumcits)) +
-  geom_segment(aes(x=maxyear, xend=maxyear, y=maxyearcit, yend=projmaxyear), color='grey50', size=1.5) +
+  geom_line(aes(y=proj_cumcits), group=1, color='gray50', size=1.5, linetype='dashed') +
   geom_point(aes(y=proj_cumcits), pch=21,color='white',fill='grey50', size=5) +
-  geom_line(group=1, color=citcolor, size=1.5) +
-  geom_point(pch=21,color='white',fill=citcolor, size=5) +
+  geom_line(data=combo %>% filter(year != current_year), group=1, color=citcolor, size=1.5) +
+  geom_point(data=combo %>% filter(year != current_year), pch=21,color='white',fill=citcolor, size=5) +
   labs(x=NULL, y= NULL) +
   scale_y_continuous(limits=c(0,cymax), breaks=seq(0,cymax,cymax/num_breaks)) +
   theme(
@@ -357,9 +357,9 @@ g1 <- gtable_add_cols(g1, g2$widths[g2$layout[index, ]$l], pp$r)
 g1 <- gtable_add_grob(g1, yaxis, pp$t, pp$r + 1, pp$b, pp$r + 1, clip = "off", name = "axis-r")
 
 # Labels grob
-cp <- paste0("Cumulative No. Publications: ", max(combo$cumpubs))
+cp <- paste0("Cumulative Publications: ", max(combo$cumpubs))
 left = textGrob(cp, x = 0, y = 0.9, just = c("left", "top"), gp = gpar(col =  pubcolor))
-cc <- paste0("Cumulative No. Citations: ", max(combo$cumcits))
+cc <- paste0("Cumulative Citations: ", max(combo$cumcits))
 right =  textGrob(cc, x = 1, y = 0.9, just = c("right", "top"), gp = gpar(col =  citcolor))
 labs = gTree("Labs", children = gList(left, right))
 
